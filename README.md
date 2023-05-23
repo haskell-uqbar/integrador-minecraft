@@ -27,7 +27,7 @@ Por ejemplo:
 - La cantidad de puntos del jugador se incrementa a razón de 10 puntos por segundo utilizado en el crafteo.
 - El objeto se craftea sólo si se cuenta con todos los materiales requeridos antes de comenzar la tarea. En caso contrario, no se altera el inventario, pero se pierden 100 puntos.
 
-_Por ejemplo, si un jugador con 1000 puntos tenía un hacha, una fogata y dos pollos y craftea un pollo asado, mantiene su hacha intacta, se queda con un sólo pollo, sin fogatas y pasa a tener un pollo asado en su inventario. Su puntaje pasa a ser 4000._
+_Por ejemplo, si un jugador con 1000 puntos tenía un sueter, una fogata y dos pollos y craftea un pollo asado, mantiene su sueter intacto, se queda con un sólo pollo, sin fogatas y pasa a tener un pollo asado en su inventario. Su puntaje pasa a ser 4000._
 
 2. Dado un personaje y una lista de recetas: 
 - Encontrar los objetos que podría craftear un jugador y que le permitirían como mínimo duplicar su puntaje. 
