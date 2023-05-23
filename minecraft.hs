@@ -6,18 +6,6 @@ data Jugador = UnJugador {
 
 -- PARTE 1
 
-{-
-Craftear consiste en construir objetos a partir de otros objetos. 
-Para ello se cuenta con recetas que consisten en una lista de materiales
-que se requieren para craftear un nuevo objeto. La receta también 
-especifica el tiempo que tarda en construirse. 
-Todo material puede ser componente de una receta y todo objeto resultante 
-de una receta también es un material y puede ser parte en la receta de otro.
-Por ejemplo:
-para hacer una fogata, se necesita madera y fósforo y se tarda 10 segundos
-para hacer pollo asado, se necesita fogata y un pollo, pero se tarda 300 segundos
--}
-
 type Material = String
 
 data Receta = Receta {
@@ -25,7 +13,7 @@ data Receta = Receta {
     tiempo :: Int,
     resultado :: Material
 }
--- MATERIALES UTILIZADOS:
+
 fogata,fosforo, madera,polloAsado,pollo,sueter,hielo,lobos,iglues :: Material
 fogata = "fogata"
 fosforo = "fosforo"
@@ -37,21 +25,13 @@ hielo = "hielo"
 iglues = "iglues"
 lobos = "lobos"
 
-{-
-Hacer las funciones necesarias para que un jugador craftee un nuevo objeto
-El jugador debe quedar con el nuevo objeto en su inventario
-El jugador debe quedar sin los materiales usados para craftear
-La cantidad de puntos del jugador se incrementa a razón de 10 puntos por segundo utilizado en el crafteo.
-El objeto se craftea sólo si se cuenta con todos los materiales requeridos antes de 
-comenzar la tarea. En caso contrario, no se altera el inventario, pero se pierden 100 puntos.
--}
 intentarCraftear :: Receta -> Jugador ->  Jugador
 intentarCraftear receta jugador
     | tieneMateriales receta jugador  =  craftear receta jugador 
     | otherwise = alterarPuntaje (-100) jugador 
 
 craftear :: Receta -> Jugador -> Jugador
-craftear receta = alterarPuntaje (tiempo receta).agregarMaterial (resultado receta).quitarMateriales  (materiales receta)
+craftear receta = alterarPuntaje (10*tiempo receta).agregarMaterial (resultado receta).quitarMateriales  (materiales receta)
 
 
 -- Auxiliares
@@ -77,21 +57,20 @@ alterarPuntaje :: Int -> Jugador ->  Jugador
 alterarPuntaje n jugador  = jugador {puntaje = puntaje jugador + n}
 
 {-
-Dado un personaje y una lista de recetas: 
-Encontrar los objetos que podría craftear un jugador y que le permitirían como mínimo duplicar su puntaje. 
-Hacer que un personaje craftee sucesivamente todos los objetos indicados en la lista de recetas. 
-Averiguar si logra quedar con más puntos en caso de craftearlos a todos en el orden indicado o al revés.
+Ejemplos:
+ghci> intentarCraftear recetaPollo maria
+UnJugador {nombre = "maria", puntaje = 4000, inventario = ["pollo asado","pollo","sueter"]}
 -}
 
 recetaFogata :: Receta
 recetaFogata = Receta [madera, fosforo] 10 fogata
 
 recetaPollo :: Receta
-recetaPollo = Receta [fogata, pollo] 100 polloAsado
+recetaPollo = Receta [fogata, pollo] 300 polloAsado
 
 juan, maria :: Jugador
-juan = UnJugador "juan" 1000 [madera, fosforo, pollo, sueter]
-maria = UnJugador "maria" 5 [madera, fosforo, pollo, sueter]
+juan = UnJugador "juan" 20 [madera, fosforo, pollo, sueter]
+maria = UnJugador "maria" 1000 [fogata, pollo, pollo, sueter]
 
 unasRecetas :: [Receta]
 unasRecetas = [recetaFogata, recetaPollo]
@@ -110,32 +89,26 @@ masPuntosAlReves jugador listaDeRecetas = puntaje (craftearSucesivamente jugador
 
 {-
 Ejemplos:
+ghci> intentarCraftear recetaPollo maria
+UnJugador {nombre = "maria", puntaje = 4000, inventario = ["pollo asado","pollo","sueter"]}
 
 ghci> crafteablesDuplicadores unasRecetas maria
-["fogata"]
+["pollo asado"]
 ghci> crafteablesDuplicadores unasRecetas juan
-[]
+["fogata"]
+
 ghci> craftearSucesivamente juan (reverse unasRecetas)
-UnJugador {nombre = "juan", puntaje = 1110, inventario = ["pollo asado","sueter"]}
+UnJugador {nombre = "juan", puntaje = 3120, inventario = ["pollo asado","sueter"]}
 ghci> craftearSucesivamente juan unasRecetas
-UnJugador {nombre = "juan", puntaje = 910, inventario = ["fogata","pollo","sueter"]}
+UnJugador {nombre = "juan", puntaje = 20, inventario = ["fogata","pollo","sueter"]}
+
 ghci> masPuntosAlReves juan unasRecetas
 True
-
 -}
 
 -- PARTE 2
 
-{-
-Cuando un personaje va a minar a un bioma, si cuenta con el elemento necesario, agrega a su 
-inventario uno de los materiales del bioma y gana 50 puntos. La forma de elegir cuál es el material del 
-bioma a conseguir, depende de la herramienta que use al minar. Por ejemplo, el hacha hace que se mine el 
-último de los materiales del bioma, mientras que la espada actúa sobre el primero de ellos. 
-Existe tambien el pico, que por ser más preciso permite apuntar a una determinada posición de los materiales. 
-Por ejemplo, si un personaje con un sueter en su inventario mina el artico con un pico de precisión 1, 
-agrega un iglú a su inventario. En caso de no poder minar por no tener lo necesario el personaje se 
-va con las manos vacías y sigue como antes.
--}
+
 data Bioma = UnBioma{
     materialesPresentes :: [Material],
     materialNecesario :: Material
@@ -165,16 +138,15 @@ minar herramienta bioma jugador
 {-
 EJEMPLOS DE USO DE HERRAMIENTAS:
 
+ghci> minar hacha biomaArtico juan
+UnJugador {nombre = "juan", puntaje = 70, inventario = ["lobos","madera","fosforo","pollo","sueter"]}
 
+ghci> minar (pico 1) biomaArtico juan
+UnJugador {nombre = "juan", puntaje = 70, inventario = ["iglues","madera","fosforo","pollo","sueter"]}
 
 -}
-
 
 -- PARTE 3
-{-
- Depende de como sea la función que defina la herramienta, ya que si una herramienta utiliza la función head sobre
- la lista infinita, no va a haber problema, gracias a la evaliacion diferida o perezosa. Por ejemplo:
--}
 
 listaPollosInfinitos :: [String]
 listaPollosInfinitos = pollo : listaPollosInfinitos
